@@ -11,6 +11,29 @@
     tools:context=".ui.AuditMainActivity">
 
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/et_input_data_nama"
+        android:hint="Masukkan Nama"
+        android:layout_marginBottom="20dp"
+        android:layout_marginHorizontal="20dp"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/et_input_data_lokasi"
+        android:layout_marginBottom="20dp"
+        android:layout_marginHorizontal="20dp"
+        android:hint="Masukkan Lokasi Temuan"
+        />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/et_input_data_status"
+        android:layout_marginBottom="20dp"
+        android:layout_marginHorizontal="20dp"
+        android:hint="Masukkan Status Temuan"/>
 
     <Button
         android:id="@+id/btn_save_data"

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">LearningRoomDatabase</string>
+    <string name="no_data">Tidak ada data di database.</string>
+    <string name="audit_list_format">Total: %1$d\n%2$s</string>
 </resources>

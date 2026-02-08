@@ -4,17 +4,13 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.learning.learningroomdatabase.R
-import com.learning.learningroomdatabase.data.local.entity.AuditEntity
-import com.learning.learningroomdatabase.databinding.ActivityMainBinding
 
 class AuditMainActivity : AppCompatActivity() {
     private lateinit var auditViewModel: AuditViewModel
-    private val binding: ActivityMainBinding by lazy {
-        ActivityMainBinding.inflate(layoutInflater)
+    private val binding: com.learning.learningroomdatabase.databinding.ActivityMainBinding by lazy {
+        com.learning.learningroomdatabase.databinding.ActivityMainBinding.inflate(layoutInflater)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,19 +22,34 @@ class AuditMainActivity : AppCompatActivity() {
         auditViewModel = ViewModelProvider(this).get(AuditViewModel::class.java)
 
         binding.btnSaveData.setOnClickListener {
-            val dataBaru = AuditEntity(
-                nama_petugas = "John Doe",
-                lokasi_temuan = "Gudang A",
-                status_prioritasi = 1
+            val nama_petugas = binding.etInputDataNama.text.toString().trim()
+            val lokasi_temuan = binding.etInputDataLokasi.text.toString().trim()
+            val status_prioritasi = binding.etInputDataStatus.text.toString().toIntOrNull() ?: 0
+
+
+            val dataBaru = com.learning.learningroomdatabase.data.local.entity.AuditEntity(
+                nama_petugas = nama_petugas,
+                lokasi_temuan = lokasi_temuan,
+                status_prioritasi = status_prioritasi
             )
             auditViewModel.insert(dataBaru)
+
+            // Optional: clear inputs after save
+            binding.etInputDataNama.text?.clear()
+            binding.etInputDataLokasi.text?.clear()
+            binding.etInputDataStatus.text?.clear()
         }
 
         auditViewModel.allAudits.observe(this){ listAudit ->
             Log.d("AuditMainActivity", "Number of audits: ${listAudit.size}")
-            val nama =  listAudit.joinToString { it.nama_petugas }
-            binding.tvStatus.text = " total data di Database: $nama"
-
+            if (listAudit.isEmpty()) {
+                binding.tvStatus.text = getString(R.string.no_data)
+            } else {
+                val formatted = listAudit.joinToString(separator = "\n") { audit ->
+                    "- ${audit.nama_petugas} | ${audit.lokasi_temuan} | status: ${audit.status_prioritasi}"
+                }
+                binding.tvStatus.text = getString(R.string.audit_list_format, listAudit.size, formatted)
+            }
         }
 
 

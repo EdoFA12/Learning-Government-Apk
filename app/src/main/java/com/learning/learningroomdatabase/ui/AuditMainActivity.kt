@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.learning.learningroomdatabase.R
 
 class AuditMainActivity : AppCompatActivity() {
@@ -34,21 +35,27 @@ class AuditMainActivity : AppCompatActivity() {
             )
             auditViewModel.insert(dataBaru)
 
-            // Optional: clear inputs after save
             binding.etInputDataNama.text?.clear()
             binding.etInputDataLokasi.text?.clear()
             binding.etInputDataStatus.text?.clear()
         }
 
+        val adapter = AuditAdapter { auditToDelete ->
+            auditViewModel.delete(auditToDelete)
+        }
+        binding.rvAudits.layoutManager = LinearLayoutManager(this)
+        binding.rvAudits.adapter = adapter
+
         auditViewModel.allAudits.observe(this){ listAudit ->
             Log.d("AuditMainActivity", "Number of audits: ${listAudit.size}")
             if (listAudit.isEmpty()) {
                 binding.tvStatus.text = getString(R.string.no_data)
+                binding.tvStatus.visibility = android.view.View.VISIBLE
+                binding.rvAudits.visibility = android.view.View.GONE
             } else {
-                val formatted = listAudit.joinToString(separator = "\n") { audit ->
-                    "- ${audit.nama_petugas} | ${audit.lokasi_temuan} | status: ${audit.status_prioritasi}"
-                }
-                binding.tvStatus.text = getString(R.string.audit_list_format, listAudit.size, formatted)
+                binding.tvStatus.visibility = android.view.View.GONE
+                binding.rvAudits.visibility = android.view.View.VISIBLE
+                adapter.submitList(listAudit)
             }
         }
 

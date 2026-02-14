@@ -42,7 +42,7 @@ class AuditMainActivity : AppCompatActivity() {
             }
         }
 
-    private fun updateAddressTask(audit: com.learning.learningroomdatabase.data.local.entity.AuditEntity) {
+    private fun updateAddressTask(audit: AuditEntity) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val alamatBaru = getAddressFromLocation(audit.latitude ?: 0.0, audit.longitude ?: 0.0)
@@ -71,6 +71,20 @@ class AuditMainActivity : AppCompatActivity() {
         binding.rvAudits.layoutManager = LinearLayoutManager(this)
         binding.rvAudits.adapter = adapter
 
+        // Setup SwipeRefresh (pull-to-refresh)
+        // activity_main.xml memiliki SwipeRefreshLayout id `swipe_refresh`.
+        binding.swipeRefresh.setOnRefreshListener {
+            binding.swipeRefresh.isRefreshing = true
+            // Jalankan konversi alamat di background lalu hentikan indikator
+            lifecycleScope.launch(Dispatchers.IO) {
+                convertAllCoordsToAddress()
+                withContext(Dispatchers.Main) {
+                    binding.swipeRefresh.isRefreshing = false
+                    Toast.makeText(this@AuditMainActivity, getString(R.string.sync_done), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
         // Observer Data Room
         auditViewModel.allAudits.observe(this) { listAudit ->
             if (listAudit.isEmpty()) {
@@ -83,7 +97,7 @@ class AuditMainActivity : AppCompatActivity() {
                 adapter.submitList(listAudit)
             }
 
-            if (isNetworkAvailable(this)) {
+            if (isNetworkAvailable()) {
                 listAudit.forEach { audit ->
                     if (audit.lokasi?.contains(",") == true && audit.latitude != null && audit.longitude != null) {
 
@@ -197,7 +211,7 @@ class AuditMainActivity : AppCompatActivity() {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
-            binding.etInputDataLokasi.setText("Mencari lokasi presisi...")
+            binding.etInputDataLokasi.setText(getString(R.string.searching_location))
 
             fusedLocationClient.getCurrentLocation(priority, null).addOnSuccessListener { location ->
                 if (location != null) {
@@ -209,7 +223,7 @@ class AuditMainActivity : AppCompatActivity() {
                     binding.etInputDataLokasi.setText(rawCoords)
 
                     // Coba konversi ke alamat jika online
-                    if (isNetworkAvailable(this)) {
+                    if (isNetworkAvailable()) {
                         lifecycleScope.launch(Dispatchers.IO) {
                             val alamat = getAddressFromLocation(location.latitude, location.longitude)
                             withContext(Dispatchers.Main) {
@@ -219,7 +233,7 @@ class AuditMainActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    binding.etInputDataLokasi.setText("Gagal mengunci GPS. Coba lagi.")
+                    binding.etInputDataLokasi.setText(getString(R.string.gps_lock_failed))
                 }
             }
         }
@@ -228,6 +242,7 @@ class AuditMainActivity : AppCompatActivity() {
     private fun getAddressFromLocation(lat: Double, lng: Double): String {
         return try {
             val geocoder = Geocoder(this, Locale.getDefault())
+            @Suppress("DEPRECATION")
             val addresses = geocoder.getFromLocation(lat, lng, 1)
             if (!addresses.isNullOrEmpty()) {
                 addresses[0].getAddressLine(0)
@@ -239,7 +254,7 @@ class AuditMainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isNetworkAvailable(context: Context): Boolean {
+    private fun isNetworkAvailable(): Boolean {
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val capabilities = cm.getNetworkCapabilities(cm.activeNetwork)
         return capabilities?.run {
@@ -248,4 +263,25 @@ class AuditMainActivity : AppCompatActivity() {
         } ?: false
     }
 
+    // Convert semua audit yang masih menyimpan lokasi sebagai koordinat "lat, long"
+    private fun convertAllCoordsToAddress() {
+        val currentList = auditViewModel.allAudits.value ?: emptyList()
+        if (currentList.isEmpty()) return
+
+        currentList.forEach { audit ->
+            if (audit.lokasi?.contains(",") == true && audit.latitude != null && audit.longitude != null) {
+                try {
+                    val lat = audit.latitude!!
+                    val lng = audit.longitude!!
+                    val alamatBaru = getAddressFromLocation(lat, lng)
+                    if (alamatBaru != "${audit.latitude}, ${audit.longitude}") {
+                        val updated = audit.copy(lokasi = alamatBaru)
+                        auditViewModel.insert(updated)
+                    }
+                } catch (e: Exception) {
+                    Log.e("Refresh", "Gagal update ID ${audit.id}: ${e.message}")
+                }
+            }
+        }
+    }
 }

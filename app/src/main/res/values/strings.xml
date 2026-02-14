@@ -1,6 +1,15 @@
 <resources>
     <string name="app_name">LearningRoomDatabase</string>
     <string name="no_data">Tidak ada data di database.</string>
+    <string name="searching_location">Mencari lokasi presisi...</string>
+    <string name="gps_lock_failed">Gagal mengunci GPS. Coba lagi.</string>
+    <string name="hint_name">Masukkan Nama</string>
+    <string name="hint_lokasi_temuan">Masukkan Lokasi Temuan</string>
+    <string name="hint_status">Masukkan Status Temuan</string>
+    <string name="hint_lokasi">Lokasi Temuan</string>
+    <string name="btn_save">Simpan Data</string>
+    <string name="tv_data_placeholder">Data akan muncul disini</string>
+    <string name="sync_done">Sinkronisasi selesai</string>
     <string name="audit_list_format">Total: %1$d\n%2$s</string>
     <string name="status_format">Status: %1$d</string>
 </resources>

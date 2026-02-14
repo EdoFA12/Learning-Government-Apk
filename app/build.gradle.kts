@@ -63,4 +63,6 @@ dependencies {
     kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
 
+    // SwipeRefreshLayout (use compatible version)
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }

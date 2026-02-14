@@ -15,17 +15,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/et_input_data_nama"
-        android:hint="Masukkan Nama"
+        android:hint="@string/hint_name"
         android:layout_marginBottom="20dp"
-        android:layout_marginHorizontal="20dp"/>
+        android:layout_marginHorizontal="20dp"
+        android:inputType="textPersonName"
+        android:autofillHints="name"/>
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/et_input_data_lokasi_temuan"
         android:layout_marginBottom="20dp"
         android:layout_marginHorizontal="20dp"
-        android:hint="Masukkan Lokasi Temuan"
-        />
+        android:hint="@string/hint_lokasi_temuan"
+        android:inputType="text"
+        android:autofillHints="postalAddress"/>
 
     <EditText
         android:layout_width="match_parent"
@@ -33,7 +36,9 @@
         android:id="@+id/et_input_data_status"
         android:layout_marginBottom="20dp"
         android:layout_marginHorizontal="20dp"
-        android:hint="Masukkan Status Temuan"/>
+        android:hint="@string/hint_status"
+        android:inputType="number"
+        android:autofillHints="postalCode"/>
 
     <EditText
         android:layout_width="match_parent"
@@ -41,33 +46,43 @@
         android:id="@+id/et_input_data_lokasi"
         android:layout_marginBottom="20dp"
         android:layout_marginHorizontal="20dp"
-        android:hint="Lokasi Temuan"
+        android:hint="@string/hint_lokasi"
         android:drawableEnd="@drawable/ic_camera"
-        />
+        android:inputType="textPostalAddress"
+        android:autofillHints="postalAddress"/>
 
     <Button
         android:id="@+id/btn_save_data"
-        android:text="Simpan Data"
+        android:text="@string/btn_save"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         />
 
-    <!-- RecyclerView untuk menampilkan list sebagai todolist -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_audits"
+    <!-- SwipeRefreshLayout membungkus RecyclerView agar list bisa di-refresh -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        tools:listitem="@layout/item_audit"
-        android:layout_marginTop="12dp"
-        android:padding="12dp"/>
+        android:layout_marginTop="12dp">
+
+        <!-- RecyclerView untuk menampilkan list sebagai todolist -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_audits"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            tools:listitem="@layout/item_audit"
+            android:padding="12dp"/>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 
     <TextView
         android:id="@+id/tv_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Data akan muncul disini"
+        android:text="@string/tv_data_placeholder"
         android:layout_marginTop="30dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
